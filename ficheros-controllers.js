@@ -28,11 +28,8 @@ async function createFichero(req, res) {
     if(!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send('No se ha subido ningun archivo.');
     }
-  
-    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     
   
-    // Use the mv() method to place the file somewhere on your server
     imagen.mv(`/carpetas_usuarios/${nombreCarpeta}/${nombre}`, function(err) {
       
     });
