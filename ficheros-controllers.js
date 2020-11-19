@@ -1,14 +1,19 @@
 const Joi = require('joi');
 const fs = require('fs').promises;
 const path = require('path');
+const fileUpload = require('express-fileupload');
+
 
 const { database } = require('../infrastructure');
 
 
 async function createFichero(req, res) {
   try{
-  const {folderId} =  req.params;
-  const {nombre,nombreCarpeta,data} = req.body;
+  
+  const {folderId,nombre,nombreCarpeta} = req.params;
+  let imagen = req.files.imagen;
+ 
+  
   const schema = Joi.object({
     nombre: Joi.string()
   });
@@ -19,18 +24,23 @@ async function createFichero(req, res) {
     res.status(404);
     return res.send({ error: 'Carpeta no encontrada' });
     }
-    const insertQuery = 'INSERT INTO ficheros (nombre, id_carpetas) VALUES (?, ?)';
-    const [result]=await database.pool.query(insertQuery,[nombre, folderId]);
-    function escribeFichero(){
-
-      const ruta = path.join(__dirname,`./carpetas_usuarios/${nombreCarpeta}/${nombre}`);
-      const datos = data
-
-      fs.writeFile(ruta,datos)
-
-      
+    
+    if(!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send('No se ha subido ningun archivo.');
     }
-    escribeFichero();
+  
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    
+  
+    // Use the mv() method to place the file somewhere on your server
+    imagen.mv(`/carpetas_usuarios/${nombreCarpeta}/${nombre}`, function(err) {
+      
+    });
+    createFichero();
+  
+    const insertQuery = 'INSERT INTO ficheros (nombre, id_carpetas) VALUES (?,?)';
+    const [result]=await database.pool.query(insertQuery,[nombre, folderId]);
+   
    
     res.status(201);
     res.send(result[0]);
@@ -38,6 +48,7 @@ async function createFichero(req, res) {
   }catch(err){
     res.status(res.code || 500);
     res.send({error: err.message});
+    
   }
   }
   module.exports = {
