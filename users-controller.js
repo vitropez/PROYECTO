@@ -68,7 +68,7 @@ async function login(req, res) {
 
     await schema.validateAsync({ email, contrasena });
 
-    // 1. Recuperamos el usuario desde la base de datos.
+    
 
     const query = 'SELECT * FROM usuarios WHERE email = ?';
     const [rows] = await database.pool.query(query, email);
@@ -81,7 +81,7 @@ async function login(req, res) {
 
     const usuario = rows[0];
 
-    // 2. Comprobamos que el password que nos están enviando es válido.
+    
 
     const isValidPassword = await bcrypt.compare(contrasena, usuario.contrasena);
 
@@ -91,8 +91,7 @@ async function login(req, res) {
       throw error;
     }
 
-    // 3. Construimos el JWT para enviárselo al cliente.
-    const tokenPayload = { id: user.id };
+    
 
     const token = jwt.sign(
       tokenPayload,
