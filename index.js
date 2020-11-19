@@ -1,7 +1,3 @@
-const foldersController = require('./folders-controller');
-const UsersController = require('./users-controller');
+const database = require('./database');
 
-module.exports = {
-  foldersController,
-  UsersController,
-};
+module.exports = { database };
