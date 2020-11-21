@@ -8,16 +8,24 @@ const { database } = require('../infrastructure');
 
 
 async function createFichero(req, res) {
+
+  
+  const {folderId} = req.params;
+  const {nombre,nombreCarpeta}=req.query;
+  const {imagen } = req.files; 
+  
+  
+  
+  console.log(req.query);
+
+
+  console.log (req.params,req.files);
   try{
-  
-  const {folderId,nombre,nombreCarpeta} = req.params;
-  let imagen = req.files.imagen;
- 
-  
+     
   const schema = Joi.object({
     nombre: Joi.string()
   });
-  await schema.validateAsync({ nombre });
+  await schema.validateAsync({ nombre});
   const selectquery =('SELECT * FROM carpetas WHERE id=?');
   const [rows]= await database.pool.query(selectquery,folderId);
   if (!rows || !rows.length) {
@@ -25,23 +33,19 @@ async function createFichero(req, res) {
     return res.send({ error: 'Carpeta no encontrada' });
     }
     
-    if(!req.files || Object.keys(req.files).length === 0) {
+    if(!req.files || req.files.length === 0) {
       return res.status(400).send('No se ha subido ningun archivo.');
     }
+           
+     fs.writeFile(path.join(__dirname,`./carpetas_usuarios/${nombreCarpeta}`,imagen.name),imagen.data);
+   
+   
     
-  
-    imagen.mv(`/carpetas_usuarios/${nombreCarpeta}/${nombre}`, function(err) {
-      
-    });
-    createFichero();
   
     const insertQuery = 'INSERT INTO ficheros (nombre, id_carpetas) VALUES (?,?)';
-    const [result]=await database.pool.query(insertQuery,[nombre, folderId]);
-   
-   
-    res.status(201);
-    res.send(result[0]);
-    
+    const [result]=await database.pool.query(insertQuery,[imagen.name, folderId]);
+      
+       
   }catch(err){
     res.status(res.code || 500);
     res.send({error: err.message});
