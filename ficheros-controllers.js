@@ -52,6 +52,32 @@ async function createFichero(req, res) {
     
   }
   }
+  async function updateficheros(req, res) {
+    try {
+      const {folderId} = req.params;
+      const {nombre,nombreCarpeta,newNombre}=req.query;
+           
+      const selectquery ='SELECT * FROM carpetas WHERE id=?';
+      const [rows]= await database.pool.query(selectquery,folderId);  
+    
+      if (!rows || !rows.length) {
+        res.status(404);
+        return res.send({ error: 'carpeta no encontrada' });
+      }
+      
+   
+      
+      const updateQuery = 'UPDATE ficheros SET nombre=?  WHERE id = ?';
+      await database.pool.query(updateQuery, [newNombre,folderId]);
+      fs.rename (`./controllers/carpetas_usuarios/${nombreCarpeta}/${nombre}`,`./controllers/carpetas_usuarios/${nombreCarpeta}/${newNombre}`); 
+    } catch (err) {
+      res.status(400);
+      res.send({ error: err.message });
+    }
+  }     
+      
   module.exports = {
     createFichero,
+    updateficheros,
+
   };
