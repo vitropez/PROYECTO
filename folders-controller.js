@@ -40,8 +40,11 @@ async function createFolder(req, res) {
 }
 
 async function getFolders(req, res) {
+
   try {
-    const [carpetas] = await database.pool.query('SELECT * FROM carpetas');
+    const {folderId} = req.params;
+    
+    const [carpetas] = await database.pool.query('SELECT * FROM carpetas  WHERE id_carpetas=?',folderId);
     res.send(carpetas);
   } catch (err) {
     res.status(500);
