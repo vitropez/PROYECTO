@@ -1,6 +1,11 @@
 const Joi = require('joi');
 const fs = require('fs').promises;
 const path = require('path');
+const express = require('express');
+const app = express();
+import {login} from './users-controller.js';
+
+
 const { database } = require('../infrastructure');
 async function createFolder(req, res) {
   try{
@@ -40,6 +45,10 @@ async function createFolder(req, res) {
 }
 
 async function getFolders(req, res) {
+  app.use(login(request, response, next),{
+    
+ 
+  });
 
   try {
     const {folderId} = req.params;
