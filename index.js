@@ -1,7 +1,5 @@
-const foldersController = require('./folders-controller');
-const UsersController = require('./users-controller');
+const { validateAuthorization } = require('./validate-auth');
 
 module.exports = {
-  foldersController,
-  UsersController,
+  validateAuthorization,
 };
