@@ -1,6 +1,9 @@
+
 const Joi = require('joi');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
 
 const { database } = require('../infrastructure');
 
@@ -16,20 +19,22 @@ async function getUsers(req, res) {
 
 async function createUser(req, res) {
   try {
-    const { nombre, email, contrasena,nick,direccion,apellidos,foto,telefono } = req.body;
+
+    
+
+    const { email, contrasena,nombre} = req.body;
+    const foto = req.file;
+    console.log('>>', req.file)
 
     const userSchema = Joi.object({
-      nombre: Joi.string(),
+      
       email: Joi.string().email().required(),
       contrasena: Joi.string().min(6).max(20).required(),
-      nick: Joi.string(),
-      apellidos: Joi.string(),
-      direccion:Joi.string(),
-      telefono:Joi.number(),
-      foto:Joi.string(),
+      nombre: Joi.string(),
+      //foto: Joi.string(),
     });
 
-    await userSchema.validateAsync({ nombre, email, contrasena,nick,apellidos,direccion,telefono,foto });
+    await userSchema.validateAsync({  email, contrasena,nombre });
 
     const query = 'SELECT * FROM usuarios WHERE email = ?';
     const [users] = await database.pool.query(query, email);
@@ -39,23 +44,38 @@ async function createUser(req, res) {
       err.code = 409;
       throw err;
     }
-
+    fs.writeFileSync(path.join(__dirname,"./carpetas_usuarios/"+nombre),foto.buffer);
+    
+    const ruta = "http://localhost:3000/static/"+nombre;
+    
+    
     const passwordHash = await bcrypt.hash(contrasena, 10);
-    const insertQuery = 'INSERT INTO usuarios (nombre, email, contrasena,nick,apellidos,direccion,telefono,foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const [rows] = await database.pool.query(insertQuery, [nombre, email, passwordHash,nick,direccion,apellidos,telefono,foto]);
-
+    const insertQuery = 'INSERT INTO usuarios ( email, contrasena,nombre,foto) VALUES (?, ?, ?,?)';
+    const [rows] = await database.pool.query(insertQuery, [ email, passwordHash,nombre,ruta]);
+  
+   
     const createdId = rows.insertId;
 
     const selectQuery = 'SELECT * FROM usuarios WHERE id = ?';
     const [selectRows] = await database.pool.query(selectQuery, createdId);
+    const tokenPayload = { id: selectRows.id };
 
-    res.send(selectRows[0]);
+    const token = jwt.sign(
+      tokenPayload,
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' },
+    );
+
+           
+    res.send({token,...selectRows[0]});
 
   } catch (err) {
-    res.status(err.code || 500);
+    res.status(err.httpCode || 500);
     res.send({ error: err.message })
   }
 }
+
+
 
 async function login(req, res) {
   try {
@@ -80,6 +100,7 @@ async function login(req, res) {
     }
 
     const usuario = rows[0];
+    
 
     
 
@@ -90,19 +111,23 @@ async function login(req, res) {
       error.code = 401;
       throw error;
     }
-
-    
+    const tokenPayload = { id: usuario.id };
 
     const token = jwt.sign(
       tokenPayload,
       process.env.JWT_SECRET,
       { expiresIn: '30d' },
     );
+
+     
     
-    res.send({ token });
+    res.send({ token,...rows[0] });
+ 
+    
+    
 
   } catch (err) {
-    res.status(err.code || 500);
+    res.status(err.httpCode|| 500);
     res.send({ error: err.message });
   }
 }
