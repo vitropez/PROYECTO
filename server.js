@@ -33,6 +33,8 @@ app.post('/api/folders/:userId',validateAuthorization,foldersController.createFo
 app.post('/api/ficheros',ficherosControllers.createFichero);
 app.put('/api/folders/:folderId',validateAuthorization,foldersController.updateFolder);
 app.put('/api/ficheros/:folderId',ficherosControllers.updateficheros);
+app.delete('api/ficheros/:id', ficherosControllers.deletefichero);
+app.put('/api/users',validateAuthorization,UsersController.updateUsers);
 
 // Escuchar un puerto
 app.listen(HTTP_PORT, () => console.log(`Escuchando en el puerto ${HTTP_PORT}`));
