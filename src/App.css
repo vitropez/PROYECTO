@@ -1,0 +1,28 @@
+.App {
+  display: flex;
+  height: 100vh;
+  background-image:url("fotos/foto-libro.jpg");
+  background-size: 100%;
+  background-size: cover;
+}
+
+.App > aside {
+  background-color: #cccccc;
+  border-right: 1px solid black;
+  padding: 10px;
+  width: 220px;
+  
+  
+}
+
+.App > main {
+  padding: 20px;
+}
+
+.toggle {
+  cursor: pointer;
+  width: 340px;
+  text-align: center;
+}
+
+

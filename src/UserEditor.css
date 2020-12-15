@@ -1,0 +1,13 @@
+.user-editor {
+  border: 1px solid #ccc;
+}
+
+.user-editor label {
+  display: flex;
+  justify-content: space-between;
+}
+
+.user-editor button {
+  display: block;
+  margin: auto;
+}

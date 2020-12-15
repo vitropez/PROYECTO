@@ -1,0 +1,36 @@
+.createcarpeta{
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin: 10px;
+    padding: 20px;
+    position: relative;
+    text-align: center;
+    height: 155px;
+    width: 300px;
+    background-color: darkgreen;
+    
+  
+  }
+  .createcarpeta label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .createcarpeta .error {
+    color: #e22f2f;
+    height: 0;
+  }
+  
+  .createcarpetabutton {
+    margin-top: 30px;
+    margin-bottom: 5px;
+  }
+  
+  .createcarpeta .note {
+    color: #aaa;
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-size: 10px;
+  }
