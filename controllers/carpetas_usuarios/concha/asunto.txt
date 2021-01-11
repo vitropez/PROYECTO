@@ -1,0 +1,22 @@
+function WriteFile(){
+const fso = new ActiveXObject('Scripting.FileSystemObject');
+const fh = fso.CreateTextFile("c\\Test.txt",true);
+fh.WriteLine(miCadenaDeTexto);
+fh.Close();
+}
+
+<html>
+<body>
+  <script>
+    function create() {
+      var fso = new ActiveXObject("Scripting.FileSystemObject");
+      fso.CreateFolder("C:\\Temp\\myFolder");
+      fso = null;
+    }
+  </script>
+  Create Folder: "c:\newfolder"
+  <form name="myForm">
+    <input type="Button" value="Click to Create New Folder" onClick="create()">
+  </form>
+</body>
+</html>

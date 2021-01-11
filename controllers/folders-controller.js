@@ -16,7 +16,7 @@ async function createFolder(req, res) {
    // throw err;
   //}
   const userId = req.auth.id;
-  const {nombre,carpetasId} = req.body;
+  const {nombre} = req.body;
   const schema = Joi.object({
     
     nombre: Joi.string()
@@ -32,12 +32,12 @@ async function createFolder(req, res) {
     const ruta = path.join(__dirname,`./carpetas_usuarios/${nombre}`);
      fs.mkdir(ruta);
   
-  const insertQuery = 'INSERT INTO carpetas (nombre,ruta, id_usuarios,id_carpetas) VALUES (?,?,?,?)';
-  const [result]=await database.pool.query(insertQuery,[nombre,ruta, userId,carpetasId]);
+  const insertQuery = 'INSERT INTO carpetas (nombre,ruta, id_usuarios) VALUES (?,?,?)';
+  const [result]=await database.pool.query(insertQuery,[nombre,ruta, userId]);
     
   
   res.status(201);
-  res.send(result[0]);
+  res.send({ok:true});
   
 }catch(err){
   res.status(res.code || 500);

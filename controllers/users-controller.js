@@ -20,21 +20,21 @@ async function getUsers(req, res) {
 async function createUser(req, res) {
   try {
 
-    
 
-    const {email, pasword,nombre} = req.body;
+
+    const { email, password, nombre } = req.body;
     const foto = req.file;
     console.log('>>', req.file)
 
     const userSchema = Joi.object({
-      
+
       email: Joi.string().email().required(),
-      pasword: Joi.string().min(6).max(20).required(),
+      password: Joi.string().min(6).max(20).required(),
       nombre: Joi.string(),
       //foto: Joi.string(),
     });
 
-    await userSchema.validateAsync({  email,pasword,nombre });
+    await userSchema.validateAsync({ email, password, nombre });
 
     const query = 'SELECT * FROM usuarios WHERE email = ?';
     const [users] = await database.pool.query(query, email);
@@ -44,21 +44,21 @@ async function createUser(req, res) {
       err.code = 409;
       throw err;
     }
-    fs.writeFileSync(path.join(__dirname,"./carpetas_usuarios/"+nombre),foto.buffer);
-    
-    const ruta = "http://localhost:3000/static/"+nombre;
-    
-    
-    const passwordHash = await bcrypt.hash(pasword, 10);
-    const insertQuery = 'INSERT INTO usuarios ( email, pasword,nombre,foto) VALUES (?, ?, ?,?)';
-    const [rows] = await database.pool.query(insertQuery, [ email, passwordHash,nombre,ruta]);
-  
-   
+    fs.writeFileSync(path.join(__dirname, "./carpetas_usuarios/" + nombre), foto.buffer);
+
+    const ruta = "http://localhost:3000/static/" + nombre;
+
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const insertQuery = 'INSERT INTO usuarios ( email, password,nombre,foto) VALUES (?, ?, ?,?)';
+    const [rows] = await database.pool.query(insertQuery, [email, passwordHash, nombre, ruta]);
+
+
     const createdId = rows.insertId;
 
     const selectQuery = 'SELECT * FROM usuarios WHERE id = ?';
     const [selectRows] = await database.pool.query(selectQuery, createdId);
-    const tokenPayload = { id: selectRows.id };
+    const tokenPayload = { id: createdId };
 
     const token = jwt.sign(
       tokenPayload,
@@ -66,8 +66,8 @@ async function createUser(req, res) {
       { expiresIn: '30d' },
     );
 
-           
-    res.send({token,...selectRows[0]});
+
+    res.send({ token, ...selectRows[0] });
 
   } catch (err) {
     res.status(err.httpCode || 500);
@@ -79,16 +79,16 @@ async function createUser(req, res) {
 
 async function login(req, res) {
   try {
-    const { email, pasword }= req.body;
+    const { email, password } = req.body;
 
     const schema = Joi.object({
       email: Joi.string().email().required(),
-      pasword: Joi.string().min(6).max(20).required(),
+      password: Joi.string().min(6).max(20).required(),
     });
 
-    await schema.validateAsync({ email, pasword });
+    await schema.validateAsync({ email, password });
 
-    
+
 
     const query = 'SELECT * FROM usuarios WHERE email = ?';
     const [rows] = await database.pool.query(query, email);
@@ -100,14 +100,14 @@ async function login(req, res) {
     }
 
     const usuario = rows[0];
-    
 
-    
 
-    const isValidPassword = await bcrypt.compare(pasword, usuario.pasword);
+
+
+    const isValidPassword = await bcrypt.compare(password, usuario.password);
 
     if (!isValidPassword) {
-      const error = new Error('El pasword no es válido');
+      const error = new Error('El password no es válido');
       error.code = 401;
       throw error;
     }
@@ -119,39 +119,43 @@ async function login(req, res) {
       { expiresIn: '30d' },
     );
 
-     
-    
-    res.send({ token,...rows[0] });
- 
-    
-    
+
+
+    res.send({ token, ...rows[0] });
+
+
+
 
   } catch (err) {
-    res.status(err.httpCode|| 500);
+    res.status(err.httpCode || 500);
     res.send({ error: err.message });
   }
 }
 async function updateUsers(req, res) {
   try {
-    const {nombre} = req.params;
-    const {email,newNombre} = req.body;
+    const userId = req.auth.id;
+    const { nombre, email } = req.body;
     const foto = req.file;
-          
-    const selectquery ='SELECT * FROM usuario WHERE id=?';
-    const [rows]= await database.pool.query(selectquery,usuarioId);  
-  
+
+    const selectquery = 'SELECT * FROM usuarios WHERE id=?';
+    const [rows] = await database.pool.query(selectquery, userId);
+
     if (!rows || !rows.length) {
       res.status(404);
       return res.send({ error: 'usuario no encontrado' });
     }
-    
- 
-    
-    const updateQuery = 'UPDATE usuarios SET nombre=? email=? foto=?  WHERE nombre = ?';
-    await database.pool.query(updateQuery, [newNombre,email,foto]);
-    fs.rename (`./carpetas_usuarios/${nombre}`,`carpetas_usuarios/${newNombre}`);
-    fs.writeFileSync(path.join(__dirname,"./carpetas_usuarios/"+newNombre),foto.buffer);
+
+
+    console.log('Update:', userId, nombre, email,foto) 
+    const nombrefoto="http://localhost:3000/static/"+nombre;
+    const updateQuery = 'UPDATE usuarios SET nombre=?, email=?, foto=? WHERE id = ?';
+    await database.pool.query(updateQuery, [nombre, email, nombrefoto, userId]);
+    console.log('Rename:', rows[0].nombre, nombre)
+    fs.renameSync(path.join(__dirname, `./carpetas_usuarios/${rows[0].nombre}`), path.join(__dirname, `./carpetas_usuarios/${nombre}`));
+    //fs.renameSync(`./carpetas_usuarios/${rows[0].nombre}`, `./carpetas_usuarios/${nombre}`);
+    fs.writeFileSync(path.join(__dirname, "./carpetas_usuarios/" + nombre), foto.buffer);
   } catch (err) {
+    console.error(err)
     res.status(400);
     res.send({ error: err.message });
   }
