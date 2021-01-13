@@ -2,8 +2,8 @@ import { useFolders } from './api'
 import { Link } from 'react-router-dom'
 import { useUser } from './UserContext'
 import Login from './Login'
-
-
+import CreateCarpeta from './createCarpeta'
+import './carpeta.css';
 
 
 function FicherosViewer({ id }) {
@@ -15,7 +15,8 @@ function FicherosViewer({ id }) {
 
 
 
-  if (!carpetas || carpetas.error) return 'Loading ...'
+  if (!carpetas || carpetas.error)
+   return( <CreateCarpeta />)
 
   return (
 
@@ -23,17 +24,16 @@ function FicherosViewer({ id }) {
       {carpetas.map(carpeta =>
         <>
           
-          <h2>{carpeta.nombre}</h2>
+          <h2>{carpeta.nombre}📁</h2>
           <ul>
-            <li>ID_CARPETA: {carpeta.id}</li>
-            <li>NOMBRE: {carpeta.nombre}</li>
-            <Link to={'/ficheros/' + carpeta.id}>{carpetas.name}ver</Link>
+          <Link to={'/ficheros/' + carpeta.id}>ver</Link>
           </ul>
          
         </>
+        
       )}
 
-
+                
     </div>
   )
 }

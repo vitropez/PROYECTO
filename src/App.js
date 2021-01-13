@@ -7,6 +7,7 @@ import Home from './Home';
 import Carpetas from './Carpetas';
 import Ficheros from './Ficheros';
 import Login from './Login';
+import Update from './updateusuario';
 
 function App() {
   return (
@@ -18,6 +19,9 @@ function App() {
         </Route>
         <Route path="/users">
           <Users />
+          </Route>
+          <Route path="/updateusuario">
+            <Update />
         </Route>
         <Route path="/about">
           <About />

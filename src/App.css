@@ -1,9 +1,10 @@
 .App {
-  display: flex;
-  height: 100vh;
+  display: flex;  
   background-image:url("fotos/foto-libro.jpg");
-  background-size: 100%;
+  width: 100%;
   background-size: cover;
+  height:100vh;
+  
 }
 
 .App > aside {

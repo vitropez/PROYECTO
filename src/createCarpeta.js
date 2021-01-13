@@ -1,21 +1,23 @@
 import { useState } from 'react'
-import { useSetUser } from './UserContext'
+import { useUser } from './UserContext'
 import { createcarpeta } from './api'
 import './createcarpeta.css';
+import{useHistory} from 'react-router-dom'
+
 // import './Register.css';
 
 function CreateCarpeta() {
-  const setMe = useSetUser()
-  
-  const [folderId, setFolder] = useState('')
-  const [nombre, setNombre] = useState('')
+  const me = useUser()
+  const history= useHistory()
+
+  const [nombre, setNombre] = useState()
   const [isError, setError] = useState(false)
 
   const handleSubmit = async e => {
     e.preventDefault()
-    const data = await createcarpeta(nombre,folderId)
-    if (data.token) {
-        setMe(data)
+    const data = await createcarpeta(me.token,nombre)
+    if (data.ok) {
+      history.push("/carpetas")
       } else {
         setError(true)
       }
@@ -25,18 +27,12 @@ function CreateCarpeta() {
     <div className="createcarpeta">
       <form onSubmit={handleSubmit}>
       <label>
-          nombre:
-          <input type="nombre" value={nombre} onChange={e => setNombre(e.target.value)} />
+          crea tu carpeta:
+          <input type="text" value={nombre} onChange={e => setNombre(e.target.value)} />
         </label>
        
         
-      <label>
-          carpetaid:
-          <input type="folderId" value={folderId} onChange={e => setFolder(e.target.value)} />
-        </label>
-      
-           
-        {isError &&
+            {isError &&
           <div className="error">
             Error de registro
           </div>
