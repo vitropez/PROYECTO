@@ -109,8 +109,8 @@ async function deletefichero(req, res) {
 
     await database.pool.query('DELETE FROM ficheros WHERE id = ?', id);
 
-    res.status(204);
-    res.send();
+    res.status(200);
+    res.send({});
   } catch (err) {
     res.status(500);
     res.send({ error: err.message });
